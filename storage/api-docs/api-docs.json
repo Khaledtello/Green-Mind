@@ -1,0 +1,166 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Green Mind API Documentation",
+        "description": "API Documentation for Smart Agricultural Nursery Management System.",
+        "contact": {
+            "email": "support@greenmind.sy"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000/api",
+            "description": "Local Development Server"
+        }
+    ],
+    "paths": {
+        "/predict": {
+            "post": {
+                "tags": [
+                    "Diagnosis"
+                ],
+                "summary": "Diagnose plant disease from image",
+                "description": "Upload a plant leaf image to get diagnosis, confidence score, Grad-CAM heatmap, and treatment.",
+                "operationId": "predictDisease",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "image": {
+                                        "description": "Leaf image (JPG, PNG, JPEG) - Max 10MB",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "plant_id": {
+                                        "description": "Optional: Plant batch ID to link diagnosis",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful diagnosis",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "تم تشخيص الصورة بنجاح"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "disease_name_arabic": {
+                                                    "type": "string",
+                                                    "example": "لفحة البندورة المتأخرة"
+                                                },
+                                                "confidence_percentage": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 95.5
+                                                },
+                                                "original_image_path": {
+                                                    "type": "string",
+                                                    "example": "diagnoses/leaf_123.jpg"
+                                                },
+                                                "grad_cam_image_path": {
+                                                    "type": "string",
+                                                    "example": "diagnoses/gradcam_leaf_123.jpg"
+                                                },
+                                                "treatment": {
+                                                    "type": "string",
+                                                    "example": "استخدام مبيدات فطرية جهازية..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The image field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server or AI Service Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error processing image"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Failed to connect to AI service."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Enter Sanctum Token here",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Diagnosis",
+            "description": "Diagnosis"
+        }
+    ]
+}
