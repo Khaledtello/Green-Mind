@@ -4,29 +4,29 @@ namespace App\Traits;
 
 trait ApiResponse
 {
-    public function successResponse($message = 'success', $code = 200, $businessCode = 'OK')
+    public function successResponse($message = null, $code = 200, $businessCode = 'OK')
     {
         return response()->json([
             'status'  => true,
-            'message' => $message,
+            'message' => $message ?? __('api.success'),
             'code'    => $businessCode,
         ], $code);
     }
 
-    public function dataResponse($data = null, $message = 'success', $code = 200, $status = true)
+    public function dataResponse($data = null, $message = null, $code = 200, $status = true)
     {
         return response()->json([
             'status'  => $status,
-            'message' => $message,
+            'message' => $message ?? __('api.success'),
             'data'    => $data,
         ], $code);
     }
 
-    public function errorResponse($error = 'error', $message = 'fail', $code = 400)
+    public function errorResponse($error = null, $message = null, $code = 400)
     {
         return response()->json([
             'status'  => false,
-            'message' => $message,
+            'message' => $message ?? __('api.error'),
             'error'   => $error,
         ], $code);
     }
