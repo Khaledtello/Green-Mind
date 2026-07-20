@@ -13,6 +13,9 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    /**
+     * Login user and generate a token.
+     */
     public function login(LoginRequest $request)
     {
         if (!Auth::attempt($request->only('username', 'password')))
@@ -27,17 +30,26 @@ class AuthController extends Controller
         ], __('api.login_success'));
     }
 
+    /**
+     * Logout user and revoke his token.
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
         return $this->successResponse(__('api.logout_success'));
     }
 
+    /**
+     * Get the authenticated user's profile.
+     */
     public function profile(Request $request)
     {
         return $this->dataResponse($request->user());
     }
 
+    /**
+     * Update the authenticated user's password.
+     */
     public function resetPassword(ResetPasswordRequest $request)
     {
         $user = $request->user();

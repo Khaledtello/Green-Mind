@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('crop_id')->constrained()->onDelete('cascade');
 
-            $table->string('batch_name');
+            $table->string('name');
             $table->date('planting_date');
             $table->date('harvest_date')->nullable();
             $table->integer('quantity');
@@ -25,6 +25,7 @@ return new class extends Migration
 
             $table->index(['user_id', 'crop_id', 'health_status']);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

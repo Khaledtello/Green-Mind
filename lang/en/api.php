@@ -20,4 +20,6 @@ return [
     'not_found' => 'Resource not found',
     'success' => 'Operation completed successfully',
     'error' => 'An error occurred, please try again later',
+
+    'crop_in_use' => 'Cannot delete crop because it is associated with plant batches.',
 ];

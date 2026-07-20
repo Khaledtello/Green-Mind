@@ -4,17 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class Plant extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'user_id',
         'crop_id',
-        'batch_name',
+        'name',
         'planting_date',
         'harvest_date',
         'quantity',
@@ -30,7 +31,7 @@ class Plant extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['batch_name', 'quantity', 'health_status', 'notes'])
+            ->logOnly(['name', 'quantity', 'health_status', 'notes'])
             ->logOnlyDirty()
             ->useLogName('plant');
     }

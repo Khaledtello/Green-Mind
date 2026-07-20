@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreCropRequest;
+use App\Http\Requests\UpdateCropRequest;
+use App\Models\Crop;
 
 class CropController extends Controller
 {
@@ -11,38 +13,45 @@ class CropController extends Controller
      */
     public function index()
     {
-        //
+        $crops = Crop::latest()->get();
+        return $this->dataResponse($crops);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCropRequest $request)
     {
-        //
+        $crop = Crop::create($request->validated());
+        return $this->dataResponse($crop, __('api.created'), 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Crop $crop)
     {
-        //
+        return $this->dataResponse($crop);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateCropRequest $request, Crop $crop)
     {
-        //
+        $crop->update($request->validated());
+        return $this->dataResponse($crop, __('api.updated'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Crop $crop)
     {
-        //
+        if ($crop->plants()->exists())
+            return $this->errorResponse('error', __('api.crop_in_use'), 409);
+
+        $crop->delete();
+        return $this->successResponse(__('api.deleted'));
     }
 }

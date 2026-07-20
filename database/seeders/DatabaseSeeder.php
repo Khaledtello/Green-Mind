@@ -17,11 +17,11 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::firstOrCreate(
-            ['username' => 'super_admin'],
+            ['username' => 'admin'],
             [
-                'name' => 'المهندس الزراعي الرئيسي',
+                'name' => 'super admin',
                 'password' => 'password',
-                'role' => UserRole::Engineer,
+                'role' => UserRole::Admin,
             ]
         );
     }
