@@ -24,11 +24,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
     Route::get('/schedule', [ScheduleController::class, 'index']);
-    Route::put('/schedule/{id}', [ScheduleController::class, 'update'])->middleware('role:admin,engineer');
+    Route::post('/schedule/{schedule}/irrigate', [ScheduleController::class, 'irrigate']);
+    Route::post('/schedule/{plant}/undo', [ScheduleController::class, 'undo']);
 
     Route::apiResource('plants', PlantController::class)->only(['index', 'show']);
-    
+
     Route::middleware('role:admin,engineer')->group(function () {
+        Route::put('/schedule/{schedule}/reschedule', [ScheduleController::class, 'reschedule']);
+
         Route::apiResource('users', UserController::class);
 
         Route::apiResource('crops', CropController::class);

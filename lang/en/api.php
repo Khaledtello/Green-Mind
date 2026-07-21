@@ -24,4 +24,12 @@ return [
 
     'crop_in_use' => 'Cannot delete crop because it is associated with plant batches',
     'diagnosis_error' => 'An error occurred while processing the image',
+
+    'irrigation_completed' => 'Irrigation completed and next schedule calculated',
+    'schedule_updated' => 'Irrigation schedule updated successfully',
+    'undo_successful' => 'Last irrigation undone successfully',
+    'no_irrigation_to_undo' => 'No completed irrigation to undo for this batch',
+    'cannot_edit_past' => 'Cannot edit an already completed irrigation schedule',
+    'already_irrigated' => 'This irrigation is already completed',
+    'already_irrigated_today' => 'Cannot irrigate this batch more than once on the same day',
 ];
