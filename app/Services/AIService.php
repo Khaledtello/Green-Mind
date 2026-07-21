@@ -22,9 +22,8 @@ class AIService
             $image->getClientOriginalName()
         )->post("{$this->pythonBaseUrl}/predict");
 
-        if ($response->failed()) {
-            throw new \Exception("فشل الاتصال بخدمة الذكاء الاصطناعي للتشخيص.");
-        }
+        if ($response->failed())
+            throw new \Exception(__('api.ai_connection_failed'));
 
         return $response->json();
     }

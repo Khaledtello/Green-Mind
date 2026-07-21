@@ -35,12 +35,12 @@ class DiagnosisController extends Controller
                 $diagnosis = DiagnosisHistory::create([
                     'user_id' => Auth::id(),
                     'plant_id' => $request->plant_id,
-                    'disease_name_technical' => $aiResult['disease_name_technical'] ?? 'Unknown',
-                    'disease_name_arabic' => $aiResult['disease_name_arabic'] ?? 'غير معروف',
-                    'confidence_percentage' => $aiResult['confidence'] ?? 0,
+                    'disease_name_technical' => $aiResult['disease_name_technical'],
+                    'disease_name_arabic' => $aiResult['disease_name_arabic'],
+                    'confidence_percentage' => $aiResult['confidence'],
                     'original_image_path' => $originalPath,
                     'grad_cam_image_path' => $gradCamPath,
-                    'treatment' => $aiResult['treatment'] ?? 'لا يوجد علاج متوفر.',
+                    'treatment' => $aiResult['treatment'],
                 ]);
 
                 if ($request->plant_id) {
@@ -55,12 +55,12 @@ class DiagnosisController extends Controller
                 return $diagnosis;
             });
 
-            return $this->dataResponse($diagnosis, 'تم تشخيص الصورة بنجاح');
+            return $this->dataResponse($diagnosis);
         } catch (\Exception $e) {
             if (isset($originalPath)) Storage::disk('public')->delete($originalPath);
             if (isset($gradCamPath)) Storage::disk('public')->delete($gradCamPath);
 
-            return $this->errorResponse($e->getMessage(), 'حدث خطأ أثناء معالجة الصورة', 500);
+            return $this->errorResponse($e->getMessage(), __('api.diagnosis_error'), 500);
         }
     }
 }
