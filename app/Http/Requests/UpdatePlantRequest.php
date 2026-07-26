@@ -28,7 +28,7 @@ class UpdatePlantRequest extends FormRequest
             'planting_date' => 'sometimes|date|before_or_equal:today',
             'harvest_date'  => 'nullable|date|after:planting_date|before_or_equal:today',
             'quantity'      => 'sometimes|integer|min:1',
-            'health_status' => 'sometimes|string',
+            'disease_name'  => 'sometimes|nullable|string',
             'notes'         => 'nullable|string',
         ];
     }

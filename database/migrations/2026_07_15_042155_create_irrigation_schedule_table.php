@@ -20,7 +20,6 @@ return new class extends Migration
             $table->boolean('is_manual_override')->default(false);
             $table->text('notes')->nullable();
 
-            $table->index('plant_id');
             $table->index('recommended_date');
             $table->timestamps();
         });

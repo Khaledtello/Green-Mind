@@ -19,7 +19,7 @@ class Plant extends Model
         'planting_date',
         'harvest_date',
         'quantity',
-        'health_status',
+        'disease_name',
         'notes',
     ];
 

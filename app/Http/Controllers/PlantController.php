@@ -28,14 +28,9 @@ class PlantController extends Controller
     public function store(StorePlantRequest $request)
     {
         $plant = DB::transaction(function () use ($request) {
-            $validatedData = $request->validated();
-            $validatedData['user_id'] = Auth::id();
-            $validatedData['health_status'] = 'healthy';
-
-            $plant = Plant::create($validatedData);
-
+            $request['user_id'] = Auth::id();
+            $plant = Plant::create($request->all());
             $this->scheduleService->createInitialSchedule($plant);
-
             return $plant;
         });
 
@@ -56,7 +51,7 @@ class PlantController extends Controller
     public function update(UpdatePlantRequest $request, Plant $plant)
     {
         $plant->update($request->validated());
-        return $this->dataResponse($plant, __('api.updated'));
+        return $this->dataResponse($plant->load('crop'), __('api.updated'));
     }
 
     /**

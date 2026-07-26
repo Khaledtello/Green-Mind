@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('grad_cam_image_path');
             $table->text('treatment');
 
-            $table->index('plant_id');
             $table->timestamps();
         });
     }

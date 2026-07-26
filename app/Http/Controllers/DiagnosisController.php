@@ -45,11 +45,8 @@ class DiagnosisController extends Controller
 
                 if ($request->plant_id) {
                     $plant = Plant::find($request->plant_id);
-                    if ($plant) {
-                        $plant->update([
-                            'health_status' => $aiResult['disease_name_technical'] ?? 'healthy'
-                        ]);
-                    }
+                    if ($plant)
+                        $plant->update(['disease_name' => $aiResult['disease_name_technical']]);
                 }
 
                 return $diagnosis;

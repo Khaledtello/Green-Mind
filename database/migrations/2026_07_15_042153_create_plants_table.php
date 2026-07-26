@@ -20,10 +20,12 @@ return new class extends Migration
             $table->date('planting_date');
             $table->date('harvest_date')->nullable();
             $table->integer('quantity');
-            $table->string('health_status')->default('healthy');
+            $table->string('disease_name')->nullable();
             $table->text('notes')->nullable();
 
-            $table->index(['user_id', 'crop_id', 'health_status']);
+            $table->index(['user_id', 'crop_id']);
+            $table->index('disease_name');
+            
             $table->timestamps();
             $table->softDeletes();
         });
