@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
-use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,7 +22,7 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CreateUserRequest $request)
+    public function store(StoreUserRequest $request)
     {
         $user = User::create($request->all());
         return $this->dataResponse($user, __('api.created'), 201);
@@ -41,7 +41,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($request->all());
+        $user->update($request->validated());
         return $this->dataResponse($user, __('api.updated'));
     }
 

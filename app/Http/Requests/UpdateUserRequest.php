@@ -25,10 +25,10 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'         => 'sometimes|string|max:255',
-            'username'     => 'sometimes|string|unique:users,username,' . $this->user->id,
-            'role'         => 'sometimes|in:' . implode(',', UserRole::values()),
-            'password'     => ['sometimes', 'nullable', Password::min(6)],
+            'name'     => 'sometimes|string|max:255',
+            'username' => 'sometimes|string|unique:users,username,' . $this->user->id,
+            'role'     => 'sometimes|in:' . implode(',', UserRole::values()),
+            'password' => ['sometimes', Password::min(6)],
         ];
     }
 }
