@@ -26,7 +26,6 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name'     => 'sometimes|string|max:255',
-            'username' => 'sometimes|string|unique:users,username,' . $this->user->id,
             'role'     => 'sometimes|in:' . implode(',', UserRole::values()),
             'password' => ['sometimes', Password::min(6)],
         ];

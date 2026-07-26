@@ -37,5 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('crops', CropController::class);
 
         Route::apiResource('plants', PlantController::class);
+        Route::post('/plants/{plant}/harvest', [PlantController::class, 'harvest']);
+        Route::post('/plants/{plant}/undo-harvest', [PlantController::class, 'undoHarvest']);
     });
 });

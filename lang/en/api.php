@@ -25,6 +25,12 @@ return [
     'crop_in_use' => 'Cannot delete crop because it is associated with plant batches',
     'diagnosis_error' => 'An error occurred while processing the image',
 
+    'batch_locked' => 'Cannot edit a harvested batch. Please remove the harvest date first if you wish to make changes.',
+    'harvested' => 'Batch harvested successfully. Future irrigation schedules have been stopped.',
+    'undo_harvest' => 'Harvest undone successfully. Irrigation has been rescheduled.',
+    'already_harvested' => 'This batch is already harvested',
+    'not_harvested' => 'This batch is not harvested yet',
+
     'irrigation_completed' => 'Irrigation completed and next schedule calculated',
     'schedule_updated' => 'Irrigation schedule updated successfully',
     'undo_successful' => 'Last irrigation undone successfully',

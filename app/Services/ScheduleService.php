@@ -15,6 +15,34 @@ class ScheduleService
         return $baseDate->addDays($baseDays);
     }
 
+    public function generateNextSchedule(Plant $plant): IrrigationSchedule
+    {
+        $lastIrrigation = $plant->irrigationSchedules()
+            ->whereNotNull('actual_date')
+            ->latest('actual_date')
+            ->first();
+
+        $baseDate = $lastIrrigation
+            ? Carbon::parse($lastIrrigation->actual_date)
+            : Carbon::parse($plant->planting_date);
+
+        $nextDate = $this->calculateNextDate($plant, clone $baseDate);
+
+        $pendingSchedule = $plant->irrigationSchedules()->whereNull('actual_date')->first();
+
+        if ($pendingSchedule) {
+            $pendingSchedule->update(['recommended_date' => $nextDate]);
+            return $pendingSchedule;
+        }
+
+        return IrrigationSchedule::create([
+            'plant_id' => $plant->id,
+            'recommended_date' => $nextDate,
+            'actual_date' => null,
+            'is_manual_override' => false,
+        ]);
+    }
+
     public function createInitialSchedule(Plant $plant): IrrigationSchedule
     {
         $today = Carbon::today();
