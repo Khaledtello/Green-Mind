@@ -6,6 +6,8 @@ use App\Http\Requests\StorePlantRequest;
 use App\Http\Requests\UpdatePlantRequest;
 use App\Models\Plant;
 use App\Services\ScheduleService;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -16,10 +18,14 @@ class PlantController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    #[QueryParameter('page', type: 'integer', default: 1)]
+    public function index(Request $request)
     {
-        $plants = Plant::with('crop:id,name_ar,name_en')->latest()->get();
-        return $this->dataResponse($plants);
+        $perPage = $request->input('per_page', 10);
+        $perPage = min($perPage, 100);
+
+        $plants = Plant::with('crop:id,name_ar,name_en')->latest()->paginate($perPage);
+        return $this->paginatedResponse($plants);
     }
 
     /**

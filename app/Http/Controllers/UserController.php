@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 use App\Http\Requests\UpdateUserRequest;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -13,10 +15,14 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    #[QueryParameter('page', type: 'integer', default: 1)]
+    public function index(Request $request)
     {
-        $users = User::all();
-        return $this->dataResponse($users);
+        $perPage = $request->input('per_page', 10);
+        $perPage = min($perPage, 100);
+        
+        $users = User::latest()->paginate($perPage);
+        return $this->paginatedResponse($users);
     }
 
     /**
