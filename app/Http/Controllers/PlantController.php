@@ -24,7 +24,7 @@ class PlantController extends Controller
         $perPage = $request->input('per_page', 10);
         $perPage = min($perPage, 100);
 
-        $plants = Plant::with('crop:id,name_ar,name_en')->latest()->paginate($perPage);
+        $plants = Plant::with(['crop', 'disease'])->latest()->paginate($perPage);
         return $this->paginatedResponse($plants);
     }
 
@@ -48,7 +48,7 @@ class PlantController extends Controller
      */
     public function show(Plant $plant)
     {
-        return $this->dataResponse($plant->load('crop'));
+        return $this->dataResponse($plant->load(['crop', 'disease']));
     }
 
     /**

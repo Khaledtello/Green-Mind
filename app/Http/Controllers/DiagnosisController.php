@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DiagnosisRequest;
 use App\Models\DiagnosisHistory;
+use App\Models\Disease;
 use App\Models\Plant;
 use App\Services\AIService;
 use Illuminate\Support\Facades\Auth;
@@ -12,10 +13,17 @@ use Illuminate\Support\Facades\Storage;
 
 class DiagnosisController extends Controller
 {
+    /**
+     * Diagnose plant disease from an uploaded image.
+     * 
+     * Upload a plant leaf image to get the diagnosis, confidence score, Grad-CAM heatmap, and treatment.
+     * Optionally link the diagnosis to a specific plant batch to automatically update its health status.
+     */
     public function predict(DiagnosisRequest $request, AIService $aiService)
     {
         try {
             $image = $request->file('image');
+            $plant_id = $request->plant_id;
 
             $imageName = time() . '_' . Auth::id() . '.' . $image->getClientOriginalExtension();
             $originalPath = $image->storeAs('diagnoses', $imageName, 'public');
@@ -31,10 +39,10 @@ class DiagnosisController extends Controller
                 $gradCamPath = 'diagnoses/' . $gradCamName;
             }
 
-            $diagnosis = DB::transaction(function () use ($request, $aiResult, $originalPath, $gradCamPath) {
+            $diagnosis = DB::transaction(function () use ($plant_id, $aiResult, $originalPath, $gradCamPath) {
                 $diagnosis = DiagnosisHistory::create([
                     'user_id' => Auth::id(),
-                    'plant_id' => $request->plant_id,
+                    'plant_id' => $plant_id,
                     'disease_name_technical' => $aiResult['disease_name_technical'],
                     'disease_name_arabic' => $aiResult['disease_name_arabic'],
                     'confidence_percentage' => $aiResult['confidence'],
@@ -43,13 +51,28 @@ class DiagnosisController extends Controller
                     'treatment' => $aiResult['treatment'],
                 ]);
 
-                if ($request->plant_id) {
-                    $plant = Plant::find($request->plant_id);
-                    if ($plant)
-                        $plant->update(['disease_name' => $aiResult['disease_name_technical']]);
+                if ($plant_id) {
+                    $plant = Plant::find($plant_id);
+                    $technicalName = $aiResult['disease_name_technical'];
+                    $isHealthy = str_contains(strtolower($technicalName), 'healthy');
+
+                    if ($isHealthy)
+                        $plant->update(['disease_id' => null]);
+
+                    else {
+                        $disease = Disease::firstOrCreate(
+                            ['technical_name' => $technicalName],
+                            [
+                                'ar_name' => $aiResult['disease_name_arabic'],
+                                'en_name' => ucwords(str_replace('_', ' ', $technicalName))
+                            ]
+                        );
+
+                        $plant->update(['disease_id' => $disease->id]);
+                    }
                 }
 
-                return $diagnosis;
+                return $diagnosis->refresh();
             });
 
             return $this->dataResponse($diagnosis);

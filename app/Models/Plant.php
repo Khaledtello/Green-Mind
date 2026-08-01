@@ -15,11 +15,11 @@ class Plant extends Model
     protected $fillable = [
         'user_id',
         'crop_id',
+        'disease_id',
         'name',
         'planting_date',
         'harvest_date',
         'quantity',
-        'disease_name',
         'notes',
     ];
 
@@ -44,6 +44,11 @@ class Plant extends Model
     public function crop()
     {
         return $this->belongsTo(Crop::class);
+    }
+
+    public function disease()
+    {
+        return $this->belongsTo(Disease::class);
     }
 
     public function diagnoses()

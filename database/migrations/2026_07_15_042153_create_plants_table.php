@@ -15,17 +15,16 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('crop_id')->constrained()->onDelete('cascade');
+            $table->foreignId('disease_id')->nullable()->constrained()->nullOnDelete();
 
             $table->string('name');
             $table->date('planting_date');
             $table->date('harvest_date')->nullable();
             $table->integer('quantity');
-            $table->string('disease_name')->nullable();
             $table->text('notes')->nullable();
 
             $table->index(['user_id', 'crop_id']);
-            $table->index('disease_name');
-            
+
             $table->timestamps();
             $table->softDeletes();
         });
