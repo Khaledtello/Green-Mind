@@ -38,4 +38,6 @@ return [
     'cannot_edit_past' => 'Cannot edit an already completed irrigation schedule',
     'already_irrigated' => 'This irrigation is already completed',
     'already_irrigated_today' => 'Cannot irrigate this batch more than once on the same day',
+
+    'others' => 'Others',
 ];

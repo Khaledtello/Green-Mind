@@ -35,4 +35,6 @@ return [
     'cannot_edit_past' => 'لا يمكن تعديل موعد ري تم تنفيذه فعلاً',
     'already_irrigated' => 'هذا الري مكتمل بالفعل',
     'already_irrigated_today' => 'لا يمكن ري هذه الدفعة أكثر من مرة في نفس اليوم',
+
+    'others' => 'أخرى',
 ];
