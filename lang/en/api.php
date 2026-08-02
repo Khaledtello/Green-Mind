@@ -10,6 +10,9 @@ return [
     'password_updated' => 'Password updated successfully',
     'incorrect_password' => 'Current password is incorrect',
     'cannot_delete_self' => 'You cannot delete your own account while logged in',
+    'cannot_change_admin_role' => 'Cannot change the role of the system admin',
+    'engineer_edit_farmer_only' => 'You do not have permission to edit this user',
+    'engineer_delete_farmer_only' => 'You do not have permission to delete this user',
 
     // Generic CRUD Messages
     'created' => 'Created successfully',

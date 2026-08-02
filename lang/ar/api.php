@@ -9,6 +9,9 @@ return [
     'password_updated' => 'تم تحديث كلمة المرور بنجاح',
     'incorrect_password' => 'كلمة المرور الحالية غير صحيحة',
     'cannot_delete_self' => 'لا يمكنك حذف حسابك أثناء استخدامك له',
+    'cannot_change_admin_role' => 'لا يمكن تغيير دور المدير الأساسي للنظام',
+    'engineer_edit_farmer_only' => 'لا تملك صلاحية تعديل هذا المستخدم',
+    'engineer_delete_farmer_only' => 'لا تملك صلاحية حذف هذا المستخدم',
 
     'created' => 'تمت الإضافة بنجاح',
     'updated' => 'تم التعديل بنجاح',
