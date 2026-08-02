@@ -31,7 +31,7 @@ class Plant extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'quantity', 'health_status', 'notes'])
+            ->logOnly(['name', 'quantity', 'harvest_date', 'notes'])
             ->logOnlyDirty()
             ->useLogName('plant');
     }

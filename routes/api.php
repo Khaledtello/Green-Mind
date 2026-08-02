@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CropController;
@@ -21,10 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('crops', CropController::class)->only(['index', 'show']);
     Route::apiResource('plants', PlantController::class)->only(['index', 'show']);
 
-    Route::post('/predict', [DiagnosisController::class, 'predict']);
+    Route::post('/predict', [DiagnosisController::class, 'index']);
     Route::post('/chat', [ChatController::class, 'chat']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
-    
+
     Route::get('/schedule', [ScheduleController::class, 'index']);
     Route::post('/schedule/{schedule}/irrigate', [ScheduleController::class, 'irrigate']);
     Route::post('/schedule/{plant}/undo', [ScheduleController::class, 'undo']);
@@ -38,5 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('plants', PlantController::class)->only(['store', 'update', 'destroy']);
         Route::post('/plants/{plant}/harvest', [PlantController::class, 'harvest']);
         Route::post('/plants/{plant}/undo-harvest', [PlantController::class, 'undoHarvest']);
+
+        Route::get('/audit-logs', [AuditLogController::class, 'index']);
     });
 });
