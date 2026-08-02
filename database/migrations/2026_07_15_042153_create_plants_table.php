@@ -22,11 +22,12 @@ return new class extends Migration
             $table->date('harvest_date')->nullable();
             $table->integer('quantity');
             $table->text('notes')->nullable();
-
-            $table->index(['user_id', 'crop_id']);
-
+            
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['user_id', 'crop_id']);
+            $table->index('harvest_date');
         });
     }
 

@@ -20,8 +20,9 @@ return new class extends Migration
             $table->text('message');
             $table->json('sources')->nullable();
 
-            $table->index(['user_id', 'session_id']); 
             $table->timestamps();
+
+            $table->index(['session_id', 'created_at']);
         });
     }
 

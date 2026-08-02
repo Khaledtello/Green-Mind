@@ -19,9 +19,11 @@ return new class extends Migration
             $table->date('actual_date')->nullable();
             $table->boolean('is_manual_override')->default(false);
             $table->text('notes')->nullable();
-
-            $table->index('recommended_date');
+            
             $table->timestamps();
+            
+            $table->index('actual_date');
+            $table->index('recommended_date');
         });
     }
 

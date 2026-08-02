@@ -24,6 +24,8 @@ return new class extends Migration
             $table->text('treatment');
 
             $table->timestamps();
+
+            $table->index('created_at');
         });
     }
 

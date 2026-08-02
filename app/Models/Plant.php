@@ -25,13 +25,13 @@ class Plant extends Model
 
     protected $casts = [
         'planting_date' => 'date',
-        'harvest_date' => 'date',
+        'harvest_date'  => 'date',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'quantity', 'harvest_date', 'notes'])
+            ->logOnly(['name', 'quantity', 'disease_id', 'harvest_date', 'notes'])
             ->logOnlyDirty()
             ->useLogName('plant');
     }
