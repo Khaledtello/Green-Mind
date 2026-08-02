@@ -27,7 +27,7 @@ class StoreUserRequest extends FormRequest
             'name'     => 'required|string|max:255',
             'username' => 'required|string|unique:users,username',
             'password' => 'required|string|min:6',
-            'role'     => 'required|in:' . implode(',', UserRole::values()),
+            'role'     => 'required|in:' . UserRole::Engineer->value . ',' . UserRole::Farmer->value,
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
@@ -20,7 +21,7 @@ class UserController extends Controller
     {
         $perPage = $request->input('per_page', 10);
         $perPage = min($perPage, 100);
-        
+
         $users = User::latest()->paginate($perPage);
         return $this->paginatedResponse($users);
     }
@@ -30,7 +31,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $user = User::create($request->all());
+        $user = User::create($request->validated());
         return $this->dataResponse($user, __('api.created'), 201);
     }
 
@@ -47,6 +48,12 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        if ($request->user()->role === UserRole::Engineer && $user->role !== UserRole::Farmer)
+            return $this->errorResponse('error', __('api.engineer_edit_farmer_only'), 403);
+
+        if ($user->role === UserRole::Admin && $request->has('role'))
+            return $this->errorResponse('error', __('api.cannot_change_admin_role'), 403);
+
         $user->update($request->validated());
         return $this->dataResponse($user, __('api.updated'));
     }
@@ -58,6 +65,9 @@ class UserController extends Controller
     {
         if ($user->id === Auth::id())
             return $this->errorResponse('error', __('api.cannot_delete_self'), 403);
+
+        if (Auth::user()->role === UserRole::Engineer && $user->role !== UserRole::Farmer)
+            return $this->errorResponse('error', __('api.engineer_delete_farmer_only'), 403);
 
         $user->delete();
         $user->tokens()->delete();

@@ -26,7 +26,7 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name'     => 'sometimes|string|max:255',
-            'role'     => 'sometimes|in:' . implode(',', UserRole::values()),
+            'role'     => 'sometimes|in:' . UserRole::Engineer->value . ',' . UserRole::Farmer->value,
             'password' => ['sometimes', Password::min(6)],
         ];
     }
