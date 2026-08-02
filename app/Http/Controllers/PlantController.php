@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePlantRequest;
+use App\Http\Requests\UpdatePlantDiseaseRequest;
 use App\Http\Requests\UpdatePlantRequest;
 use App\Models\Plant;
 use App\Services\ScheduleService;
@@ -106,5 +107,17 @@ class PlantController extends Controller
         });
 
         return $this->dataResponse($plant->load('crop'), __('api.undo_harvest'));
+    }
+
+    /**
+     * Manually update the disease status of a plant batch.
+     */
+    public function updateDisease(UpdatePlantDiseaseRequest $request, Plant $plant)
+    {
+        if ($plant->harvest_date !== null)
+            return $this->errorResponse('error', __('api.batch_locked'), 403);
+
+        $plant->update($request->validated());
+        return $this->dataResponse($plant->load('crop', 'disease'), __('api.updated'));
     }
 }

@@ -9,6 +9,7 @@ use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiseaseController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -19,8 +20,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/profile', [AuthController::class, 'profile']);
     Route::put('/auth/password', [AuthController::class, 'resetPassword']);
 
+    Route::apiResource('diseases', DiseaseController::class)->only(['index', 'show']);
     Route::apiResource('crops', CropController::class)->only(['index', 'show']);
+
     Route::apiResource('plants', PlantController::class)->only(['index', 'show']);
+    Route::put('/plants/{plant}/disease', [PlantController::class, 'updateDisease']);
 
     Route::post('/predict', [DiagnosisController::class, 'index']);
     Route::post('/chat', [ChatController::class, 'chat']);
@@ -33,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:admin,engineer')->group(function () {
         Route::apiResource('users', UserController::class);
-
+        Route::apiResource('diseases', DiseaseController::class)->only(['store', 'update', 'destroy']);
         Route::apiResource('crops', CropController::class)->only(['store', 'update', 'destroy']);
 
         Route::apiResource('plants', PlantController::class)->only(['store', 'update', 'destroy']);

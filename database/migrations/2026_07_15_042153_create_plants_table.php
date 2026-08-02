@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('crop_id')->constrained()->onDelete('cascade');
-            $table->foreignId('disease_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('disease_id')->nullable()->constrained()->onDelete('cascade');
 
             $table->string('name');
             $table->date('planting_date');
