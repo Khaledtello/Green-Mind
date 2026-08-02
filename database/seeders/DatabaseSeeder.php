@@ -16,13 +16,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::firstOrCreate(
-            ['username' => 'admin'],
-            [
-                'name' => 'super admin',
-                'password' => 'password',
-                'role' => UserRole::Admin,
-            ]
-        );
+        $this->call([
+            UserSeeder::class,
+            CropSeeder::class,
+            DiseaseSeeder::class,
+            PlantSeeder::class,
+            IrrigationSeeder::class,
+            DiagnosisSeeder::class,
+        ]);
     }
 }
