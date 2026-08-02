@@ -18,13 +18,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/profile', [AuthController::class, 'profile']);
     Route::put('/auth/password', [AuthController::class, 'resetPassword']);
 
-    Route::post('/predict', [DiagnosisController::class, 'predict']);
-    Route::post('/chat', [ChatController::class, 'chat']);
-
-    Route::get('/dashboard', [DashboardController::class, 'index']);
-
+    Route::apiResource('crops', CropController::class)->only(['index', 'show']);
     Route::apiResource('plants', PlantController::class)->only(['index', 'show']);
 
+    Route::post('/predict', [DiagnosisController::class, 'predict']);
+    Route::post('/chat', [ChatController::class, 'chat']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+    
     Route::get('/schedule', [ScheduleController::class, 'index']);
     Route::post('/schedule/{schedule}/irrigate', [ScheduleController::class, 'irrigate']);
     Route::post('/schedule/{plant}/undo', [ScheduleController::class, 'undo']);
@@ -32,7 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:admin,engineer')->group(function () {
         Route::apiResource('users', UserController::class);
-        Route::apiResource('crops', CropController::class);
+
+        Route::apiResource('crops', CropController::class)->only(['store', 'update', 'destroy']);
 
         Route::apiResource('plants', PlantController::class)->only(['store', 'update', 'destroy']);
         Route::post('/plants/{plant}/harvest', [PlantController::class, 'harvest']);
