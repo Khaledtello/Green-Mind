@@ -6,6 +6,8 @@ use App\Http\Requests\RescheduleRequest;
 use App\Models\IrrigationSchedule;
 use App\Models\Plant;
 use App\Services\ScheduleService;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
 {
@@ -14,14 +16,18 @@ class ScheduleController extends Controller
     /**
      * Display upcoming irrigation schedules.
      */
-    public function index()
+    #[QueryParameter('page', type: 'integer', default: 1)]
+    public function index(Request $request)
     {
+        $perPage = $request->input('per_page', 10);
+        $perPage = min($perPage, 100);
+        
         $schedules = IrrigationSchedule::with('plant.crop')
             ->whereNull('actual_date')
             ->latest('recommended_date')
-            ->get();
+            ->paginate($perPage);
 
-        return $this->dataResponse($schedules);
+        return $this->paginatedResponse($schedules);
     }
 
     /**

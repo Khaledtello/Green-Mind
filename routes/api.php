@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('plants', PlantController::class)->only(['index', 'show']);
     Route::put('/plants/{plant}/disease', [PlantController::class, 'updateDisease']);
 
-    Route::post('/predict', [DiagnosisController::class, 'index']);
+    Route::post('/predict', [DiagnosisController::class, 'predict']);
     Route::post('/chat', [ChatController::class, 'chat']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
