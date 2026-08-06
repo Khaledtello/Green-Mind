@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +26,21 @@ class DiagnosisHistory extends Model
     protected $casts = [
         'confidence_percentage' => 'decimal:2',
     ];
+
+
+    protected function originalImagePath(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value ? asset('storage/' . $value) : null,
+        );
+    }
+
+    protected function gradCamImagePath(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value ? asset('storage/' . $value) : null,
+        );
+    }
 
     public function user()
     {

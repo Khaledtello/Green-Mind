@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AuditLogResource;
+use App\Models\User;
 use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
@@ -23,7 +24,24 @@ class AuditLogController extends Controller
         $logs->getCollection()->transform(function ($log) {
             return new AuditLogResource($log);
         });
+
+        return $this->paginatedResponse($logs);
+    }
+
+    /**
+     * Get audit logs for a specific user.
+     */
+    public function userLogs(Request $request, User $user)
+    {
+        $perPage = $request->input('per_page', 10);
+        $perPage = min($perPage, 100);
         
+        $logs = Activity::where('causer_id', $user->id)->latest()->paginate($perPage);
+
+        $logs->getCollection()->transform(function ($log) {
+            return new AuditLogResource($log);
+        });
+
         return $this->paginatedResponse($logs);
     }
 }
