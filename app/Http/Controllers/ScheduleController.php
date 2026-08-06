@@ -14,16 +14,23 @@ class ScheduleController extends Controller
     public function __construct(private ScheduleService $scheduleService) {}
 
     /**
-     * Display upcoming irrigation schedules.
+     * Display a listing of the irrigation schedules.
      */
-    #[QueryParameter('page', type: 'integer', default: 1)]
+    #[QueryParameter('plant_id', description: 'Filter by specific plant batch', type: 'integer')]
+    #[QueryParameter('is_irrigated', description: 'Filter by status (true=completed, false=upcoming)', type: 'boolean')]
+    #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
+    #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-        $perPage = min($perPage, 100);
-        
+        $perPage = min((int) $request->input('per_page', 10), 100);
+
         $schedules = IrrigationSchedule::with('plant.crop')
-            ->whereNull('actual_date')
+            ->when($request->filled('plant_id'), fn($q) => $q->where('plant_id', $request->plant_id))
+            ->when($request->has('is_irrigated'), function ($q) use ($request) {
+                $request->boolean('is_irrigated')
+                    ? $q->whereNotNull('actual_date')
+                    : $q->whereNull('actual_date');
+            })
             ->latest('recommended_date')
             ->paginate($perPage);
 

@@ -16,13 +16,22 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    #[QueryParameter('page', type: 'integer', default: 1)]
+    #[QueryParameter('search', description: 'Search in name or username', type: 'string')]
+    #[QueryParameter('role', description: 'Filter by user role (admin, engineer, farmer)', type: 'string')]
+    #[QueryParameter('per_page', description: 'Number of items per page', type: 'integer', default: 10)]
+    #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-        $perPage = min($perPage, 100);
+        $perPage = min((int) $request->input('per_page', 10), 100);
 
-        $users = User::latest()->paginate($perPage);
+        $users = User::query()
+            ->when($request->filled('role'), fn($q) => $q->where('role', $request->role))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                    ->orWhere('username', 'like', "%{$request->search}%");
+            })
+            ->paginate($perPage);
+
         return $this->paginatedResponse($users);
     }
 

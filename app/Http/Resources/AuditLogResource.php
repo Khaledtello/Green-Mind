@@ -18,7 +18,7 @@ class AuditLogResource extends JsonResource
             'id'           => $this->id,
             'description'  => $this->description, // (updated, created, deleted)
 
-            'entity_type'  => $this->subject_type ? class_basename($this->subject_type) : null,
+            'entity_type'  => $this->subject_type,
             'entity_id'    => $this->subject_id,
 
             'causer'       => $this->causer,

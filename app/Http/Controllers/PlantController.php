@@ -19,13 +19,29 @@ class PlantController extends Controller
     /**
      * Display a listing of the resource.
      */
-    #[QueryParameter('page', type: 'integer', default: 1)]
+    #[QueryParameter('search', description: 'Search in name or notes', type: 'string')]
+    #[QueryParameter('crop_id', description: 'Filter by crop ID', type: 'integer')]
+    #[QueryParameter('is_healthy', description: 'Filter by health status (true/false)', type: 'boolean')]
+    #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
+    #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
-        $perPage = min($perPage, 100);
+        $perPage = min((int) $request->input('per_page', 10), 100);
 
-        $plants = Plant::with(['crop', 'disease'])->latest()->paginate($perPage);
+        $plants = Plant::with('crop', 'disease')
+            ->when($request->filled('crop_id'), fn($q) => $q->where('crop_id', $request->crop_id))
+            ->when($request->has('is_healthy'), function ($q) use ($request) {
+                $request->boolean('is_healthy')
+                    ? $q->whereNull('disease_id')
+                    : $q->whereNotNull('disease_id');
+            })
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where('name', 'like', "%{$request->search}%")
+                    ->orWhere('notes', 'like', "%{$request->search}%");
+            })
+            ->latest()
+            ->paginate($perPage);
+
         return $this->paginatedResponse($plants);
     }
 

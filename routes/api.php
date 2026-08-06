@@ -45,6 +45,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/plants/{plant}/undo-harvest', [PlantController::class, 'undoHarvest']);
 
         Route::get('/audit-logs', [AuditLogController::class, 'index']);
-        Route::get('/users/{user}/audit-logs', [AuditLogController::class, 'userLogs']);
     });
 });
