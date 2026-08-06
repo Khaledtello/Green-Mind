@@ -23,7 +23,7 @@ class UpdatePlantDiseaseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'disease_id' => 'sometimes|nullable|exists:diseases,id',
+            'disease_id' => 'nullable|exists:diseases,id',
         ];
     }
 }

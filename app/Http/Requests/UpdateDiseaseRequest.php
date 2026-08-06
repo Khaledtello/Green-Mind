@@ -23,8 +23,8 @@ class UpdateDiseaseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ar_name' => 'sometimes|string|max:255',
-            'en_name' => 'sometimes|string|max:255',
+            'ar_name' => 'string|max:255',
+            'en_name' => 'string|max:255',
         ];
     }
 }

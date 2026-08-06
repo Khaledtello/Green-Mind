@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Enums\UserRole;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -25,9 +24,9 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'     => 'sometimes|string|max:255',
-            'role'     => 'sometimes|in:' . UserRole::Engineer->value . ',' . UserRole::Farmer->value,
-            'password' => ['sometimes', Password::min(6)],
+            'name'     => 'string|max:255',
+            'role'     => 'in:' . UserRole::Engineer->value . ',' . UserRole::Farmer->value,
+            'password' => 'string|min:6',
         ];
     }
 }

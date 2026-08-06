@@ -23,9 +23,9 @@ class UpdateCropRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name_ar'              => 'sometimes|string|max:255',
-            'name_en'              => 'sometimes|string|max:255',
-            'base_irrigation_days' => 'sometimes|integer|min:1',
+            'name_ar'              => 'string|max:255',
+            'name_en'              => 'string|max:255',
+            'base_irrigation_days' => 'integer|min:1',
         ];
     }
 }

@@ -21,8 +21,9 @@ return new class extends Migration
             $table->date('planting_date');
             $table->date('harvest_date')->nullable();
             $table->integer('quantity');
+            $table->integer('base_irrigation_days')->nullable();
             $table->text('notes')->nullable();
-            
+
             $table->timestamps();
             $table->softDeletes();
 

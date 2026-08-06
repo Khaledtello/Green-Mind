@@ -20,6 +20,7 @@ class Plant extends Model
         'planting_date',
         'harvest_date',
         'quantity',
+        'base_irrigation_days',
         'notes',
     ];
 

@@ -11,7 +11,7 @@ class ScheduleService
 {
     public function calculateNextDate(Plant $plant, Carbon $baseDate): Carbon
     {
-        $baseDays = $plant->crop->base_irrigation_days;
+        $baseDays = $plant->base_irrigation_days ?? $plant->crop->base_irrigation_days ;
         return $baseDate->addDays($baseDays);
     }
 

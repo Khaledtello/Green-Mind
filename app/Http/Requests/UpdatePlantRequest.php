@@ -23,10 +23,10 @@ class UpdatePlantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'         => 'sometimes|string|max:255',
-            'quantity'     => 'sometimes|integer|min:1',
-            'disease_name' => 'sometimes|nullable|string',
-            'notes'        => 'nullable|string',
+            'name'                 => 'string|max:255',
+            'quantity'             => 'integer|min:1',
+            'base_irrigation_days' => 'nullable|integer|min:1',
+            'notes'                => 'nullable|string',
         ];
     }
 }

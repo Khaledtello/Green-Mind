@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
 class ResetPasswordRequest extends FormRequest
 {
@@ -25,7 +24,7 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             'current_password' => 'required|string',
-            'new_password'     => ['required', 'string', 'different:current_password', Password::min(6)],
+            'new_password'     => 'required|string|different:current_password|min:6',
         ];
     }
 }
