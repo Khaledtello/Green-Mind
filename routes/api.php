@@ -23,8 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('diseases', DiseaseController::class)->only(['index', 'show']);
     Route::apiResource('crops', CropController::class)->only(['index', 'show']);
 
-    Route::apiResource('plants', PlantController::class)->only(['index', 'show']);
-    Route::put('/plants/{plant}/disease', [PlantController::class, 'updateDisease']);
+    Route::apiResource('plants', PlantController::class);
+    Route::post('/plants/{plant}/harvest', [PlantController::class, 'harvest']);
+    Route::post('/plants/{plant}/undo-harvest', [PlantController::class, 'undoHarvest']);
 
     Route::post('/predict', [DiagnosisController::class, 'predict']);
     Route::post('/chat', [ChatController::class, 'chat']);
@@ -39,10 +40,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('users', UserController::class);
         Route::apiResource('diseases', DiseaseController::class)->only(['store', 'update', 'destroy']);
         Route::apiResource('crops', CropController::class)->only(['store', 'update', 'destroy']);
-
-        Route::apiResource('plants', PlantController::class)->only(['store', 'update', 'destroy']);
-        Route::post('/plants/{plant}/harvest', [PlantController::class, 'harvest']);
-        Route::post('/plants/{plant}/undo-harvest', [PlantController::class, 'undoHarvest']);
 
         Route::get('/audit-logs', [AuditLogController::class, 'index']);
     });

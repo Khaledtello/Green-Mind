@@ -65,7 +65,7 @@ class PlantController extends Controller
      */
     public function show(Plant $plant)
     {
-        return $this->dataResponse($plant->load(['crop', 'disease']));
+        return $this->dataResponse($plant->load('crop', 'disease'));
     }
 
     /**
@@ -77,7 +77,7 @@ class PlantController extends Controller
             return $this->errorResponse('error', __('api.batch_locked'), 403);
 
         $plant->update($request->validated());
-        return $this->dataResponse($plant->load('crop'), __('api.updated'));
+        return $this->dataResponse($plant->load('crop', 'disease'), __('api.updated'));
     }
 
     /**
@@ -123,17 +123,5 @@ class PlantController extends Controller
         });
 
         return $this->dataResponse($plant->load('crop'), __('api.undo_harvest'));
-    }
-
-    /**
-     * Manually update the disease status of a plant batch.
-     */
-    public function updateDisease(UpdatePlantDiseaseRequest $request, Plant $plant)
-    {
-        if ($plant->harvest_date !== null)
-            return $this->errorResponse('error', __('api.batch_locked'), 403);
-
-        $plant->update($request->validated());
-        return $this->dataResponse($plant->load('crop', 'disease'), __('api.updated'));
     }
 }

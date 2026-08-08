@@ -26,6 +26,7 @@ class UpdatePlantRequest extends FormRequest
             'name'                 => 'string|max:255',
             'quantity'             => 'integer|min:1',
             'base_irrigation_days' => 'nullable|integer|min:1',
+            'disease_id'           => 'nullable|exists:diseases,id',
             'notes'                => 'nullable|string',
         ];
     }

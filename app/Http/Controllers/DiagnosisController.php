@@ -41,20 +41,20 @@ class DiagnosisController extends Controller
 
             $diagnosis = DB::transaction(function () use ($plant_id, $aiResult, $originalPath, $gradCamPath) {
                 $diagnosis = DiagnosisHistory::create([
-                    'user_id' => Auth::id(),
-                    'plant_id' => $plant_id,
+                    'user_id'                => Auth::id(),
+                    'plant_id'               => $plant_id,
                     'disease_name_technical' => $aiResult['disease_name_technical'],
-                    'disease_name_arabic' => $aiResult['disease_name_arabic'],
-                    'confidence_percentage' => $aiResult['confidence'],
-                    'original_image_path' => $originalPath,
-                    'grad_cam_image_path' => $gradCamPath,
-                    'treatment' => $aiResult['treatment'],
+                    'disease_name_arabic'    => $aiResult['disease_name_arabic'],
+                    'confidence_percentage'  => $aiResult['confidence'],
+                    'original_image_path'    => $originalPath,
+                    'grad_cam_image_path'    => $gradCamPath,
+                    'treatment'              => $aiResult['treatment'],
                 ]);
 
                 if ($plant_id) {
                     $plant = Plant::find($plant_id);
                     $technicalName = $aiResult['disease_name_technical'];
-                    $isHealthy = str_contains(strtolower($technicalName), 'healthy');
+                    $isHealthy = str_contains(strtolower($technicalName), 'unknown');
 
                     if ($isHealthy)
                         $plant->update(['disease_id' => null]);
@@ -75,7 +75,11 @@ class DiagnosisController extends Controller
                 return $diagnosis->refresh();
             });
 
-            return $this->dataResponse($diagnosis);
+            return $this->dataResponse([
+                'diagnosis'                 => $diagnosis,
+                'recommended_interval_days' => $aiResult['schedule_recommendation']['recommended_interval_days'] ?? null,
+                'details'                   => $aiResult['details'],
+            ]);
         } catch (\Exception $e) {
             if (isset($originalPath)) Storage::disk('public')->delete($originalPath);
             if (isset($gradCamPath)) Storage::disk('public')->delete($gradCamPath);
