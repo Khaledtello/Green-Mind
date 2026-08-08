@@ -26,9 +26,7 @@ class PlantController extends Controller
     #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
     public function index(Request $request)
     {
-        $perPage = min((int) $request->input('per_page', 10), 100);
-
-        $plants = Plant::with('crop', 'disease')
+        $query = Plant::with('crop', 'disease')
             ->when($request->filled('crop_id'), fn($q) => $q->where('crop_id', $request->crop_id))
             ->when($request->has('is_healthy'), function ($q) use ($request) {
                 $request->boolean('is_healthy')
@@ -38,11 +36,19 @@ class PlantController extends Controller
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
                     ->orWhere('notes', 'like', "%{$request->search}%");
-            })
-            ->latest()
-            ->paginate($perPage);
+            });
 
-        return $this->paginatedResponse($plants);
+        $perPage = min((int) $request->input('per_page', 10), 100);
+        $plants = $query->latest()->paginate($perPage);
+
+        $stats = [
+            'total_batches'    => (clone $query)->count(),
+            'total_plants'     => (clone $query)->sum('quantity'),
+            'healthy_batches'  => (clone $query)->whereNull('disease_id')->count(),
+            'diseased_batches' => (clone $query)->whereNotNull('disease_id')->count(),
+        ];
+
+        return $this->paginatedResponse($plants, ['stats' => $stats]);
     }
 
     /**

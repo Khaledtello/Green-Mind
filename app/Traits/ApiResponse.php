@@ -33,7 +33,7 @@ trait ApiResponse
         ], $code);
     }
 
-    public function paginatedResponse(LengthAwarePaginator $paginatedData, String|null $message = null)
+    public function paginatedResponse(LengthAwarePaginator $paginatedData, $meta = null, String|null $message = null)
     {
         return response()->json([
             'status'     => true,
@@ -46,7 +46,8 @@ trait ApiResponse
                 'per_page'     => $paginatedData->perPage(),
                 'from'         => $paginatedData->firstItem(),
                 'to'           => $paginatedData->lastItem(),
-            ]
+            ],
+            'meta'       => $meta,
         ], 200);
     }
 }
