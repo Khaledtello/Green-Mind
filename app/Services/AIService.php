@@ -51,23 +51,6 @@ class AIService
         }
     }
 
-    /**
-     * استفسار البوت الخبير الزراعي (RAG)
-     */
-    public function chat(string $msg, ?string $ctx = null): array
-    {
-        $res = Http::timeout(180)->post("{$this->pythonUrl}/chat", [
-            'message' => $msg,
-            'context' => $ctx,
-        ]);
-
-        if ($res->failed()) {
-            throw new \Exception("فشل الاتصال بـ البوت الخبير الزراعي.");
-        }
-
-        return $res->json();
-    }
-
     public function chatStream(string $msg, ?string $ctx = null): \Generator
     {
         try {
@@ -78,10 +61,8 @@ class AIService
                     'context' => $ctx,
                 ]);
 
-            if ($response->failed()) {
-                yield "عذراً، تعذر الاتصال بخدمة الذكاء الاصطناعي.";
-                return;
-            }
+            if ($response->failed())
+                throw new \Exception(__('api.ai_connection_failed') . $response->body());
 
             $body = $response->getBody();
 
@@ -91,26 +72,26 @@ class AIService
                     yield $chunk;
             }
         } catch (ConnectionException $e) {
-            yield "عذراً، خادم الذكاء الاصطناعي غير متصل حالياً.";
-        } catch (Exception $e) {
-            yield "حدث خطأ غير متوقع.";
+            $mockText = "هذه إجابة تجريبية من البوت الخبير (لأن خادم الذكاء الاصطناعي غير متصل حالياً). بناءً على سؤالك: '" . $msg . "'، ننصح بمراجعة المختصين الزراعيين واستخدام المبيدات المناسبة المتوفرة في السوق السوري.";
+            $words = explode(' ', $mockText);
+
+            foreach ($words as $word) {
+                yield $word . ' ';
+                usleep(50000);
+            }
         }
     }
 
-    /**
-     * اقتراح تعديل جدول السقاية
-     */
     public function proposeSchedule(string $cropType, string $diseaseClass = 'healthy'): array
     {
-        $res = Http::post("{$this->pythonUrl}/propose-schedule", [
+        $response = Http::post("{$this->pythonUrl}/propose-schedule", [
             'crop_type' => $cropType,
             'disease_name_technical' => $diseaseClass,
         ]);
 
-        if ($res->failed()) {
-            throw new \Exception("فشل حساب اقتراح التعديل لجدول الري.");
-        }
+        if ($response->failed())
+            throw new \Exception(__('api.ai_connection_failed') . $response->body());
 
-        return $res->json();
+        return $response->json();
     }
 }
