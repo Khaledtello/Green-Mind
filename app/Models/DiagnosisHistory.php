@@ -17,6 +17,7 @@ class DiagnosisHistory extends Model
         'plant_id',
         'disease_name_technical',
         'disease_name_arabic',
+        'disease_name_english',
         'confidence_percentage',
         'original_image_path',
         'grad_cam_image_path',

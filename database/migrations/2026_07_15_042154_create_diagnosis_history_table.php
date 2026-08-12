@@ -18,6 +18,7 @@ return new class extends Migration
 
             $table->string('disease_name_technical');
             $table->string('disease_name_arabic');
+            $table->string('disease_name_english');
             $table->decimal('confidence_percentage', 5, 2);
             $table->string('original_image_path');
             $table->string('grad_cam_image_path');

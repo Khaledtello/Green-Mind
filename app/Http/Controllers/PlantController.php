@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePlantRequest;
-use App\Http\Requests\UpdatePlantDiseaseRequest;
 use App\Http\Requests\UpdatePlantRequest;
 use App\Models\Plant;
 use App\Services\ScheduleService;
@@ -42,10 +41,10 @@ class PlantController extends Controller
         $plants = $query->latest()->paginate($perPage);
 
         $stats = [
-            'total_batches'    => (clone $query)->count(),
-            'total_plants'     => (clone $query)->sum('quantity'),
-            'healthy_batches'  => (clone $query)->whereNull('disease_id')->count(),
-            'diseased_batches' => (clone $query)->whereNotNull('disease_id')->count(),
+            'total_batches'     => (clone $query)->count(),
+            'harvested_batches' => (clone $query)->whereNotNull('harvest_date')->count(),
+            'healthy_batches'   => (clone $query)->whereNull('disease_id')->count(),
+            'diseased_batches'  => (clone $query)->whereNotNull('disease_id')->count(),
         ];
 
         return $this->paginatedResponse($plants, ['stats' => $stats]);

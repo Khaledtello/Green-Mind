@@ -34,6 +34,7 @@ class DiagnosisSeeder extends Seeder
                 'plant_id' => $plant->id,
                 'disease_name_technical' => $disease->technical_name,
                 'disease_name_arabic' => $disease->ar_name,
+                'disease_name_english' => $disease->en_name,
                 'confidence_percentage' => $confidence,
                 'original_image_path' => 'diagnoses/seeded_image.jpg',
                 'grad_cam_image_path' => 'diagnoses/seeded_gradcam.jpg',

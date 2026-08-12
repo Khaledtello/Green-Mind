@@ -45,6 +45,7 @@ class DiagnosisController extends Controller
                     'plant_id'               => $plant_id,
                     'disease_name_technical' => $aiResult['disease_name_technical'],
                     'disease_name_arabic'    => $aiResult['disease_name_arabic'],
+                    'disease_name_english'   => $aiResult['disease_name_english'],
                     'confidence_percentage'  => $aiResult['confidence'],
                     'original_image_path'    => $originalPath,
                     'grad_cam_image_path'    => $gradCamPath,
@@ -54,7 +55,10 @@ class DiagnosisController extends Controller
                 if ($plant_id) {
                     $plant = Plant::find($plant_id);
                     $technicalName = $aiResult['disease_name_technical'];
-                    $isHealthy = str_contains(strtolower($technicalName), 'unknown');
+
+                    $lowerTechnicalName = strtolower($technicalName);
+                    $isHealthy = str_contains($lowerTechnicalName, 'unknown')
+                        || str_contains($lowerTechnicalName, 'healthy');
 
                     if ($isHealthy)
                         $plant->update(['disease_id' => null]);
@@ -64,7 +68,7 @@ class DiagnosisController extends Controller
                             ['technical_name' => $technicalName],
                             [
                                 'ar_name' => $aiResult['disease_name_arabic'],
-                                'en_name' => ucwords(str_replace('_', ' ', $technicalName))
+                                'en_name' => $aiResult['disease_name_english'],
                             ]
                         );
 
@@ -76,9 +80,13 @@ class DiagnosisController extends Controller
             });
 
             return $this->dataResponse([
-                'diagnosis'                 => $diagnosis,
-                'recommended_interval_days' => $aiResult['schedule_recommendation']['recommended_interval_days'] ?? null,
-                'details'                   => $aiResult['details'],
+                'diagnosis'               => $diagnosis,
+                'schedule_recommendation' => [
+                    'recommended_interval_days' => $aiResult['schedule_recommendation']['recommended_interval_days'],
+                    'reason'                    => $aiResult['schedule_recommendation']['reason'],
+                ],
+                'details'                 => $aiResult['details'],
+                'top_predictions'         => $aiResult['top_predictions'],
             ]);
         } catch (\Exception $e) {
             if (isset($originalPath)) Storage::disk('public')->delete($originalPath);
