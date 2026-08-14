@@ -61,4 +61,9 @@ class Plant extends Model
     {
         return $this->hasMany(IrrigationSchedule::class);
     }
+
+    public function inventory()
+    {
+        return $this->hasOne(HarvestedInventory::class);
+    }
 }

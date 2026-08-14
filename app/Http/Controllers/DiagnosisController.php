@@ -2,17 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\DiagnosisRequest;
 use App\Models\DiagnosisHistory;
 use App\Models\Disease;
 use App\Models\Plant;
 use App\Services\AIService;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class DiagnosisController extends Controller
 {
+    /**
+     * Display a listing of the diagnosis history.
+     */
+    #[QueryParameter('search', description: 'Search in disease name or treatment', type: 'string')]
+    #[QueryParameter('plant_id', description: 'Filter by specific plant batch', type: 'integer')]
+    #[QueryParameter('user_id', description: 'Filter by diagnosing user (Admin/Engineer only)', type: 'integer')]
+    #[QueryParameter('is_healthy', description: 'Filter by health status (true=healthy, false=diseased)', type: 'boolean')]
+    #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
+    #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
+    public function index(Request $request)
+    {
+        $query = DiagnosisHistory::with(['plant:id,name', 'user:id,name']);
+
+        if ($request->user()->role === UserRole::Farmer)
+            $query->where('user_id', $request->user()->id);
+
+        else if ($request->filled('user_id'))
+            $query->where('user_id', $request->user_id);
+
+        $query->when($request->filled('plant_id'), fn($q) => $q->where('plant_id', $request->plant_id));
+
+        $query->when($request->has('is_healthy'), function ($q) use ($request) {
+            $request->boolean('is_healthy')
+                ? $q->where('disease_name_technical', 'like', '%healthy%')
+                : $q->where('disease_name_technical', 'not like', '%healthy%');
+        });
+
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where('disease_name_arabic', 'like', "%{$request->search}%")
+                ->orWhere('disease_name_english', 'like', "%{$request->search}%")
+                ->orWhere('disease_name_technical', 'like', "%{$request->search}%")
+                ->orWhere('treatment', 'like', "%{$request->search}%");
+        });
+
+        $perPage = min((int) $request->input('per_page', 10), 100);
+        $diagnoses = $query->latest()->paginate($perPage);;
+
+        return $this->paginatedResponse($diagnoses);
+    }
+
     /**
      * Diagnose plant disease from an uploaded image.
      * 

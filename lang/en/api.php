@@ -29,9 +29,11 @@ return [
     'diagnosis_error' => 'An error occurred while processing the image',
 
     'batch_locked' => 'Cannot edit a harvested batch. Please remove the harvest date first if you wish to make changes.',
-    'harvested' => 'Batch harvested successfully. Future irrigation schedules have been stopped.',
+    'harvested' => 'Batch harvested and moved to inventory successfully.',
+    'already_harvested' => 'This batch is already harvested.',
+    'insufficient_inventory' => 'Requested quantity exceeds available inventory.',
+    'inventory_dispatched' => 'Quantity dispatched and logged successfully.',
     'undo_harvest' => 'Harvest undone successfully. Irrigation has been rescheduled.',
-    'already_harvested' => 'This batch is already harvested',
     'not_harvested' => 'This batch is not harvested yet',
 
     'irrigation_completed' => 'Irrigation completed and next schedule calculated',

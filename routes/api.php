@@ -10,6 +10,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiseaseController;
+use App\Http\Controllers\InventoryController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -25,10 +26,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('plants', PlantController::class);
     Route::post('/plants/{plant}/harvest', [PlantController::class, 'harvest']);
-    Route::post('/plants/{plant}/undo-harvest', [PlantController::class, 'undoHarvest']);
 
+    Route::get('/diagnoses', [DiagnosisController::class, 'index']);
     Route::post('/predict', [DiagnosisController::class, 'predict']);
+
     Route::post('/chat', [ChatController::class, 'chat']);
+
+    Route::get('/inventory', [InventoryController::class, 'index']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
     Route::get('/schedule', [ScheduleController::class, 'index']);
@@ -40,6 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('users', UserController::class);
         Route::apiResource('diseases', DiseaseController::class)->only(['store', 'update', 'destroy']);
         Route::apiResource('crops', CropController::class)->only(['store', 'update', 'destroy']);
+
+        Route::post('/inventory/{inventory}/dispatch', [InventoryController::class, 'dispatch']);
+        Route::get('/inventory-usages', [InventoryController::class, 'usageLog']);
 
         Route::get('/audit-logs', [AuditLogController::class, 'index']);
     });

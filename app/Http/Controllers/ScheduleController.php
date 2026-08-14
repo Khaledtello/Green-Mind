@@ -18,6 +18,7 @@ class ScheduleController extends Controller
      */
     #[QueryParameter('plant_id', description: 'Filter by specific plant batch', type: 'integer')]
     #[QueryParameter('is_irrigated', description: 'Filter by status (true=completed, false=upcoming)', type: 'boolean')]
+    #[QueryParameter('recommended_date', description: 'Filter by specific recommended irrigation date (Y-m-d)', type: 'string')]
     #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
     #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
     public function index(Request $request)
@@ -31,6 +32,7 @@ class ScheduleController extends Controller
                     ? $q->whereNotNull('actual_date')
                     : $q->whereNull('actual_date');
             })
+            ->when($request->filled('recommended_date'), fn($q) => $q->whereDate('recommended_date', $request->recommended_date))
             ->latest('recommended_date')
             ->paginate($perPage);
 
