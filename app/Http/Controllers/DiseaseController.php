@@ -5,16 +5,33 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDiseaseRequest;
 use App\Http\Requests\UpdateDiseaseRequest;
 use App\Models\Disease;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\Request;
 
 class DiseaseController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the diseases.
      */
-    public function index()
+    #[QueryParameter('search', description: 'Search in disease names (ar/en/technical)', type: 'string')]
+    #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
+    #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
+    public function index(Request $request)
     {
-        return $this->dataResponse(Disease::all());
+        $perPage = min((int) $request->input('per_page', 10), 100);
+
+        $diseases = Disease::when($request->filled('search'), function ($q) use ($request) {
+            $search = $request->search;
+            $q->where(function ($innerQuery) use ($search) {
+                $innerQuery->where('ar_name', 'like', "%{$search}%")
+                    ->orWhere('en_name', 'like', "%{$search}%")
+                    ->orWhere('technical_name', 'like', "%{$search}%");
+            });
+        })
+            ->latest()
+            ->paginate($perPage);
+
+        return $this->paginatedResponse($diseases);
     }
 
     /**

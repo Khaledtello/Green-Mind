@@ -31,6 +31,8 @@ class InventoryController extends Controller
                 $q->where(function ($innerQuery) use ($search) {
                     $innerQuery->where('storage_location', 'like', "%{$search}%")
                         ->orWhere('created_at', 'like', "%{$search}%")
+                        ->orWhere('harvest_quantity', 'like', "%{$search}%")
+                        ->orWhere('current_quantity', 'like', "%{$search}%")
                         ->orWhereHas('plant', fn($pq) => $pq->where('name', 'like', "%{$search}%"));
                 });
             })

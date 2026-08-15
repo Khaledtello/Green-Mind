@@ -32,14 +32,14 @@ class DiagnosisHistory extends Model
     protected function originalImagePath(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value ? asset('storage/' . $value) : null,
+            get: fn($value) => $value ? 'storage/' . $value : null,
         );
     }
 
     protected function gradCamImagePath(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value ? asset('storage/' . $value) : null,
+            get: fn($value) => $value ? 'storage/' . $value : null,
         );
     }
 

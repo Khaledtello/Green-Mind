@@ -5,16 +5,32 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCropRequest;
 use App\Http\Requests\UpdateCropRequest;
 use App\Models\Crop;
+use Dedoc\Scramble\Attributes\QueryParameter;
+use Illuminate\Http\Request;
 
 class CropController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    #[QueryParameter('search', description: 'Search in crop names (ar/en)', type: 'string')]
+    #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
+    #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
+    public function index(Request $request)
     {
-        $crops = Crop::latest()->get();
-        return $this->dataResponse($crops);
+        $perPage = min((int) $request->input('per_page', 10), 100);
+
+        $crops = Crop::when($request->filled('search'), function ($q) use ($request) {
+            $search = $request->search;
+            $q->where(function ($innerQuery) use ($search) {
+                $innerQuery->where('name_ar', 'like', "%{$search}%")
+                    ->orWhere('name_en', 'like', "%{$search}%");
+            });
+        })
+            ->latest()
+            ->paginate($perPage);
+
+        return $this->paginatedResponse($crops);
     }
 
     /**
