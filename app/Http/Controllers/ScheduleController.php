@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CalendarRequest;
 use App\Http\Requests\RescheduleRequest;
 use App\Models\IrrigationSchedule;
 use App\Models\Plant;
@@ -96,5 +97,27 @@ class ScheduleController extends Controller
             return $this->errorResponse('error', __('api.no_irrigation_to_undo'), 404);
 
         return $this->successResponse(__('api.undo_successful'));
+    }
+
+    /**
+     * Get calendar dates with pending irrigations for a specific month.
+     */
+    public function calendar(CalendarRequest $request)
+    {
+        $schedules = IrrigationSchedule::whereNull('actual_date')
+            ->whereMonth('recommended_date', $request->month)
+            ->whereYear('recommended_date', $request->year)
+            ->selectRaw('DATE(recommended_date) as date, COUNT(*) as total')
+            ->groupBy('date')
+            ->get();
+
+        $dates = $schedules->map(function ($item) {
+            return [
+                'date'  => $item->date,
+                'count' => $item->total
+            ];
+        });
+
+        return $this->dataResponse($dates);
     }
 }

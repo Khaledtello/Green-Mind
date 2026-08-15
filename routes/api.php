@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/schedule/{schedule}/irrigate', [ScheduleController::class, 'irrigate']);
     Route::post('/schedule/{plant}/undo', [ScheduleController::class, 'undo']);
     Route::put('/schedule/{schedule}/reschedule', [ScheduleController::class, 'reschedule']);
+    Route::get('/schedule/calendar', [ScheduleController::class, 'calendar']);
 
     Route::middleware('role:admin,engineer')->group(function () {
         Route::apiResource('users', UserController::class);

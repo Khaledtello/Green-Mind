@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DispatchInventoryRequest;
 use App\Models\HarvestedInventory;
@@ -64,7 +65,7 @@ class InventoryController extends Controller
     /**
      * Display inventory usage logs (Audit Trail).
      */
-    #[QueryParameter('search', description: 'Search by reason or plant name', type: 'string')]
+    #[QueryParameter('search', description: 'Search by reason, date, plant name, or user name', type: 'string')]
     #[QueryParameter('user_id', description: 'Filter by user ID', type: 'integer')]
     #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
     #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
@@ -75,10 +76,14 @@ class InventoryController extends Controller
         $logs = InventoryUsage::with(['inventory.plant:id,name', 'user:id,name'])
             ->when($request->filled('user_id'), fn($q) => $q->where('user_id', $request->user_id))
             ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where('reason', 'like', "%{$request->search}%")
-                    ->orWhereHas('inventory.plant', function ($plantQ) use ($request) {
-                        $plantQ->where('name', 'like', "%{$request->search}%");
-                    });
+                $search = $request->search;
+
+                $q->where(function ($innerQuery) use ($search) {
+                    $innerQuery->where('reason', 'like', "%{$search}%")
+                        ->orWhere('created_at', 'like', "%{$search}%")
+                        ->orWhereHas('inventory.plant', fn($pq) => $pq->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('user', fn($uq) => $uq->where('name', 'like', "%{$search}%"));
+                });
             })
             ->latest()
             ->paginate($perPage);
