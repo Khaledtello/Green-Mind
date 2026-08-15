@@ -58,6 +58,29 @@ class AIService
         }
     }
 
+    public function chat(string $msg, ?string $ctx = null): array
+    {
+        try {
+            $response = Http::timeout(180)->withHeaders([
+                'Accept-Language' => app()->getLocale(),
+                'Accept'          => 'application/json'
+            ])->post("{$this->pythonUrl}/chat", [
+                'message' => $msg,
+                'context' => $ctx,
+            ]);
+
+            if ($response->failed())
+                throw new \Exception(__('api.ai_connection_failed') . $response->body());
+
+            return $response->json();
+        } catch (ConnectionException $e) {
+            return [
+                'response' => "عذراً، خادم الذكاء الاصطناعي غير متصل حالياً.",
+                'sources' => []
+            ];
+        }
+    }
+
     public function chatStream(string $msg, ?string $ctx = null): \Generator
     {
         try {
