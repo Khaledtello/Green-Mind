@@ -24,18 +24,22 @@ class PlantController extends Controller
     #[QueryParameter('search', description: 'Deep search in name, quantity, base irrigation days, notes, dates, crop, or disease', type: 'string')]
     #[QueryParameter('crop_id', description: 'Filter by crop ID', type: 'integer')]
     #[QueryParameter('is_healthy', description: 'Filter by health status (true/false)', type: 'boolean')]
+    #[QueryParameter('is_harvested', description: 'Filter by harvest status (true=harvested, false=active)', type: 'boolean')]
     #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
     #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
     public function index(Request $request)
     {
         $query = Plant::with('crop', 'disease');
 
+        $activeQuery = clone $query;
+        $activeQuery->whereNull('harvest_date');
+
         $stats = [
             'total'                 => (clone $query)->count(),
-            'in_field'              => (clone $query)->whereNull('harvest_date')->count(),
+            'in_field'              => (clone $activeQuery)->count(),
             'harvested'             => (clone $query)->whereNotNull('harvest_date')->count(),
-            'healthy'               => (clone $query)->whereNull('disease_id')->count(),
-            'diseased'              => (clone $query)->whereNotNull('disease_id')->count(),
+            'healthy'               => (clone $activeQuery)->whereNull('disease_id')->count(),
+            'diseased'              => (clone $activeQuery)->whereNotNull('disease_id')->count(),
             'irrigations_due_today' => IrrigationSchedule::whereNull('actual_date')->whereDate('recommended_date', today())->count(),
         ];
 
@@ -45,6 +49,12 @@ class PlantController extends Controller
             $request->boolean('is_healthy')
                 ? $q->whereNull('disease_id')
                 : $q->whereNotNull('disease_id');
+        });
+
+        $query->when($request->has('is_harvested'), function ($q) use ($request) {
+            $request->boolean('is_harvested')
+                ? $q->whereNotNull('harvest_date')
+                : $q->whereNull('harvest_date');
         });
 
         $query->when($request->filled('search'), function ($q) use ($request) {
