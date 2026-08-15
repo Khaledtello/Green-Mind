@@ -15,7 +15,7 @@ class InventoryController extends Controller
     /**
      * Display a listing of the inventory.
      */
-    #[QueryParameter('search', description: 'Search by storage location or plant name', type: 'string')]
+    #[QueryParameter('search', description: 'Search by storage location, date or plant name', type: 'string')]
     #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
     #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
     public function index(Request $request)
@@ -25,10 +25,13 @@ class InventoryController extends Controller
         $inventory = HarvestedInventory::with('plant.crop:id,name_ar,name_en', 'plant:id,name,crop_id')
             ->where('current_quantity', '>', 0)
             ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where('storage_location', 'like', "%{$request->search}%")
-                    ->orWhereHas('plant', function ($plantQ) use ($request) {
-                        $plantQ->where('name', 'like', "%{$request->search}%");
-                    });
+                $search = $request->search;
+
+                $q->where(function ($innerQuery) use ($search) {
+                    $innerQuery->where('storage_location', 'like', "%{$search}%")
+                        ->orWhere('created_at', 'like', "%{$search}%")
+                        ->orWhereHas('plant', fn($pq) => $pq->where('name', 'like', "%{$search}%"));
+                });
             })
             ->latest()
             ->paginate($perPage);

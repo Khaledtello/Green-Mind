@@ -19,7 +19,7 @@ class DiagnosisController extends Controller
     /**
      * Display a listing of the diagnosis history.
      */
-    #[QueryParameter('search', description: 'Search in disease name or treatment', type: 'string')]
+    #[QueryParameter('search', description: 'Search in disease, treatment, date, plant, or user', type: 'string')]
     #[QueryParameter('plant_id', description: 'Filter by specific plant batch', type: 'integer')]
     #[QueryParameter('user_id', description: 'Filter by diagnosing user (Admin/Engineer only)', type: 'integer')]
     #[QueryParameter('is_healthy', description: 'Filter by health status (true=healthy, false=diseased)', type: 'boolean')]
@@ -44,10 +44,17 @@ class DiagnosisController extends Controller
         });
 
         $query->when($request->filled('search'), function ($q) use ($request) {
-            $q->where('disease_name_arabic', 'like', "%{$request->search}%")
-                ->orWhere('disease_name_english', 'like', "%{$request->search}%")
-                ->orWhere('disease_name_technical', 'like', "%{$request->search}%")
-                ->orWhere('treatment', 'like', "%{$request->search}%");
+            $search = $request->search;
+
+            $q->where(function ($innerQuery) use ($search) {
+                $innerQuery->where('disease_name_arabic', 'like', "%{$search}%")
+                    ->orWhere('disease_name_english', 'like', "%{$search}%")
+                    ->orWhere('disease_name_technical', 'like', "%{$search}%")
+                    ->orWhere('treatment', 'like', "%{$search}%")
+                    ->orWhere('created_at', 'like', "%{$search}%")
+                    ->orWhereHas('plant', fn($pq) => $pq->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('user', fn($uq) => $uq->where('name', 'like', "%{$search}%"));
+            });
         });
 
         $perPage = min((int) $request->input('per_page', 10), 100);

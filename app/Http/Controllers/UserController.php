@@ -16,7 +16,7 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    #[QueryParameter('search', description: 'Search in name or username', type: 'string')]
+    #[QueryParameter('search', description: 'Search in name, username or role', type: 'string')]
     #[QueryParameter('role', description: 'Filter by user role (admin, engineer, farmer)', type: 'string')]
     #[QueryParameter('per_page', description: 'Number of items per page', type: 'integer', default: 10)]
     #[QueryParameter('page', description: 'Page number', type: 'integer', default: 1)]
@@ -29,6 +29,10 @@ class UserController extends Controller
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
                     ->orWhere('username', 'like', "%{$request->search}%");
+                    
+                $roleEnum = UserRole::fromSearchTerm($request->search);
+                if ($roleEnum)
+                    $q->orWhere('role', $roleEnum->value);
             })
             ->paginate($perPage);
 

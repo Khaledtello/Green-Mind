@@ -16,6 +16,7 @@ class ScheduleController extends Controller
     /**
      * Display a listing of the irrigation schedules.
      */
+    #[QueryParameter('search', description: 'Search in dates, notes, or plant name', type: 'string')]
     #[QueryParameter('plant_id', description: 'Filter by specific plant batch', type: 'integer')]
     #[QueryParameter('is_irrigated', description: 'Filter by status (true=completed, false=upcoming)', type: 'boolean')]
     #[QueryParameter('recommended_date', description: 'Filter by specific recommended irrigation date (Y-m-d)', type: 'string')]
@@ -33,6 +34,15 @@ class ScheduleController extends Controller
                     : $q->whereNull('actual_date');
             })
             ->when($request->filled('recommended_date'), fn($q) => $q->whereDate('recommended_date', $request->recommended_date))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = $request->search;
+                $q->where(function ($innerQuery) use ($search) {
+                    $innerQuery->where('recommended_date', 'like', "%{$search}%")
+                        ->orWhere('actual_date', 'like', "%{$search}%")
+                        ->orWhere('notes', 'like', "%{$search}%")
+                        ->orWhereHas('plant', fn($pq) => $pq->where('name', 'like', "%{$search}%"));
+                });
+            })
             ->latest('recommended_date')
             ->paginate($perPage);
 

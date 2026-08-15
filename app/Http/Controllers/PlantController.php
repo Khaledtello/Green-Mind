@@ -6,6 +6,7 @@ use App\Http\Requests\HarvestRequest;
 use App\Http\Requests\StorePlantRequest;
 use App\Http\Requests\UpdatePlantRequest;
 use App\Models\HarvestedInventory;
+use App\Models\IrrigationSchedule;
 use App\Models\Plant;
 use App\Services\ScheduleService;
 use Dedoc\Scramble\Attributes\QueryParameter;
@@ -20,7 +21,7 @@ class PlantController extends Controller
     /**
      * Display a listing of the resource.
      */
-    #[QueryParameter('search', description: 'Search in name or notes', type: 'string')]
+    #[QueryParameter('search', description: 'Deep search in name, quantity, base irrigation days, notes, dates, crop, or disease', type: 'string')]
     #[QueryParameter('crop_id', description: 'Filter by crop ID', type: 'integer')]
     #[QueryParameter('is_healthy', description: 'Filter by health status (true/false)', type: 'boolean')]
     #[QueryParameter('per_page', description: 'Items per page', type: 'integer', default: 10)]
@@ -28,6 +29,15 @@ class PlantController extends Controller
     public function index(Request $request)
     {
         $query = Plant::with('crop', 'disease');
+
+        $stats = [
+            'total'                 => (clone $query)->count(),
+            'in_field'              => (clone $query)->whereNull('harvest_date')->count(),
+            'harvested'             => (clone $query)->whereNotNull('harvest_date')->count(),
+            'healthy'               => (clone $query)->whereNull('disease_id')->count(),
+            'diseased'              => (clone $query)->whereNotNull('disease_id')->count(),
+            'irrigations_due_today' => IrrigationSchedule::whereNull('actual_date')->whereDate('recommended_date', today())->count(),
+        ];
 
         $query->when($request->filled('crop_id'), fn($q) => $q->where('crop_id', $request->crop_id));
 
@@ -42,9 +52,11 @@ class PlantController extends Controller
 
             $q->where(function ($innerQuery) use ($search) {
                 $innerQuery->where('name', 'like', "%{$search}%")
+                    ->orWhere('quantity', 'like', "%{$search}%")
+                    ->orWhere('base_irrigation_days', 'like', "%{$search}%")
                     ->orWhere('notes', 'like', "%{$search}%")
-                    ->orWhereDate('planting_date', $search)
-                    ->orWhereDate('harvest_date', $search);
+                    ->orWhere('planting_date', 'like', "%{$search}%")
+                    ->orWhere('harvest_date', 'like', "%{$search}%");
 
                 $innerQuery->orWhereHas('crop', function ($cropQuery) use ($search) {
                     $cropQuery->where('name_ar', 'like', "%{$search}%")
@@ -58,14 +70,6 @@ class PlantController extends Controller
                 });
             });
         });
-
-
-        $stats = [
-            'total_batches'     => (clone $query)->count(),
-            'harvested_batches' => (clone $query)->whereNotNull('harvest_date')->count(),
-            'healthy_batches'   => (clone $query)->whereNull('disease_id')->count(),
-            'diseased_batches'  => (clone $query)->whereNotNull('disease_id')->count(),
-        ];
 
         $perPage = min((int) $request->input('per_page', 10), 100);
         $plants = $query->latest()->paginate($perPage);
