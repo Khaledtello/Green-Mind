@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Crop;
 use App\Models\Disease;
+use App\Models\HarvestedInventory;
 use App\Models\IrrigationSchedule;
 use App\Models\Plant;
 use App\Models\User;
@@ -31,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
             'Crop'               => Crop::class,
             'Disease'            => Disease::class,
             'IrrigationSchedule' => IrrigationSchedule::class,
+            'HarvestedInventory' => HarvestedInventory::class,
         ]);
     }
 }
