@@ -1,58 +1,404 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Green Mind API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based backend for **Green Mind**, an agricultural management platform that combines operational tools for farmers and engineers with AI-powered plant-disease diagnosis and an AI chatbot.
 
-## About Laravel
+The project focuses on the **backend/API layer**: authentication and authorization, agricultural domain logic, data management, auditability, localization, and integration with a separate Python-based AI service.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+> **Note:** The AI models/service themselves are not implemented in this repository. The Laravel backend integrates with the external AI service and manages the application-side workflows and persisted results.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Green Mind provides a central API for managing agricultural data and workflows, including:
 
-## Learning Laravel
+- Users and role-based access
+- Plants and crops
+- Plant diseases
+- Plant-disease diagnosis history
+- Irrigation schedules
+- Inventory and inventory usage
+- Harvested inventory
+- Dashboard data
+- Audit logs
+- AI-powered plant diagnosis
+- AI chatbot
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+The backend exposes RESTful API endpoints consumed by the client applications and communicates with the external AI service when AI functionality is required.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Backend Responsibilities
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+The Laravel application is responsible for:
 
-## Agentic Development
+1. Authenticating users and authorizing their actions.
+2. Validating and processing API requests.
+3. Managing agricultural data and relationships in MySQL.
+4. Applying business rules for plants, crops, inventory, irrigation, and diagnosis workflows.
+5. Recording diagnosis history and AI-related application data.
+6. Integrating with the external Python AI service.
+7. Providing dashboard and audit-log data.
+8. Supporting Arabic/English localization at the API layer.
+9. Returning structured API responses and documented API endpoints.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Main Modules
 
-```bash
-composer require laravel/boost --dev
+### Authentication & Authorization
 
-php artisan boost:install
+The API uses **Laravel Sanctum** for authentication.
+
+Access control is organized around application roles, including:
+
+- Admin
+- Engineer
+- Farmer
+
+Role-based middleware is used to protect operations that should only be available to specific user types.
+
+### Plant & Crop Management
+
+The backend provides APIs for managing agricultural entities such as plants and crops, including validation, relationships, filtering, pagination, and related business operations.
+
+### Disease Management
+
+Disease records can be managed through the API and are used as part of the plant-diagnosis workflow.
+
+### AI Plant-Disease Diagnosis
+
+The diagnosis flow connects the Laravel API with a separate Python AI service.
+
+At a high level:
+
+```text
+Client
+  |
+  v
+Laravel API
+  |
+  |  image / diagnosis request
+  v
+Python AI Service
+  |
+  v
+Diagnosis Result
+  |
+  v
+Laravel API
+  |
+  +--> Persist diagnosis history
+  +--> Return result to client
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+The Laravel side handles the application workflow around the AI service, including request validation, image-related data, communication with the external service, and persistence of diagnosis history.
 
-## Contributing
+### AI Chatbot
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The backend also integrates with the external AI service for chatbot functionality.
 
-## Code of Conduct
+Chat requests are validated and logged, while responses can be streamed back to the client using the `text/event-stream` format.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```text
+Client
+  |
+  v
+Laravel Chat API
+  |
+  v
+External AI Service
+  |
+  v
+Streaming Response
+```
 
-## Security Vulnerabilities
+Chat interactions are also persisted through the backend for application-level history and logging.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Irrigation Scheduling
 
-## License
+The application includes APIs and service-layer logic for irrigation schedules, including scheduling and rescheduling operations.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Inventory Management
+
+The backend provides inventory-related workflows for managing agricultural resources and their usage, including harvested inventory and inventory consumption.
+
+### Dashboard
+
+Dashboard endpoints aggregate application data into statistics and summaries required by the client application.
+
+### Audit Logging
+
+Important user and system actions are recorded through an audit-log module, allowing application activity to be inspected and tracked.
+
+### Localization
+
+The API includes a localization middleware that supports language selection at the request level, including Arabic and English responses.
+
+## Architecture
+
+The project follows Laravel's MVC structure while separating a number of business operations into dedicated services.
+
+A simplified structure is:
+
+```text
+app/
+├── Enums/
+│   └── UserRole.php
+│
+├── Http/
+│   ├── Controllers/
+│   ├── Middleware/
+│   ├── Requests/
+│   └── Resources/
+│
+├── Models/
+│
+├── Services/
+│   ├── AIService.php
+│   ├── DashboardService.php
+│   └── ScheduleService.php
+│
+├── OpenApi/
+│
+└── Traits/
+    └── ApiResponse.php
+```
+
+### Request Validation
+
+Dedicated Laravel Form Request classes are used to validate incoming data before controller logic is executed.
+
+Examples include requests for:
+
+- Authentication
+- Plant operations
+- Crop operations
+- Disease operations
+- Diagnosis
+- Inventory actions
+- Scheduling
+- Chat
+- User management
+
+### API Resources
+
+Laravel API Resources are used to provide structured responses instead of returning raw model data directly from controllers.
+
+### Service Layer
+
+Application logic that goes beyond simple request handling is separated into services, including:
+
+- AI integration
+- Dashboard aggregation
+- Irrigation scheduling
+
+This keeps controllers focused on handling HTTP concerns while domain/application logic is kept in dedicated classes.
+
+## Database
+
+The project uses **MySQL** as its main relational database.
+
+The database includes application entities such as:
+
+```text
+Users
+Plants
+Crops
+Diseases
+Diagnosis Histories
+Irrigation Schedules
+Inventory
+Inventory Usage
+Harvested Inventory
+Chat Logs
+Audit Logs
+```
+
+The project also includes Laravel migrations for the application's database schema.
+
+## API Design
+
+The API is organized around resource-oriented endpoints and uses standard Laravel request/response mechanisms.
+
+The main API areas include:
+
+```text
+/api/auth/...
+/api/users/...
+/api/plants/...
+/api/crops/...
+/api/diseases/...
+/api/diagnoses/...
+/api/schedules/...
+/api/inventory/...
+/api/chat/...
+/api/audit-logs/...
+/api/dashboard/...
+```
+
+The exact routes are defined in `routes/api.php`.
+
+API documentation/configuration is included through **Scramble/OpenAPI tooling**.
+
+## Technologies
+
+### Backend
+
+- PHP
+- Laravel
+- RESTful APIs
+- Eloquent ORM
+- Laravel Sanctum
+- Form Requests
+- API Resources
+- Middleware
+- Service Layer
+
+### Database
+
+- MySQL
+- Relational data modeling
+
+### Integration & AI
+
+- External Python AI service
+- Image-based diagnosis workflow
+- AI chatbot integration
+- Server-Sent Events (`text/event-stream`) for streamed chat responses
+
+### Authorization & Auditing
+
+- Role-based authorization
+- Spatie Laravel Permission
+- Activity/audit logging
+
+### Documentation & Tooling
+
+- Scramble / OpenAPI
+- Git
+
+## Example AI Diagnosis Flow
+
+A simplified diagnosis request works conceptually like this:
+
+```text
+1. Client uploads plant image
+2. Laravel validates the request
+3. Laravel sends the image/data to the Python AI service
+4. AI service returns diagnosis information
+5. Laravel stores the diagnosis result/history
+6. API returns the structured result to the client
+```
+
+The separation allows the Laravel application to remain responsible for application and business logic while the AI workload is handled by a dedicated service.
+
+## Security & Validation
+
+The backend applies several layers of API protection and data validation:
+
+- Token-based authentication with Sanctum
+- Role-based authorization middleware
+- Dedicated Form Request validation
+- Controlled API Resources
+- Server-side business-rule validation
+- Audit logging for application activity
+
+## Project Structure
+
+```text
+.
+├── app/
+├── bootstrap/
+├── config/
+├── database/
+│   ├── factories/
+│   ├── migrations/
+│   └── seeders/
+├── routes/
+│   └── api.php
+├── composer.json
+└── .env.example
+```
+
+## Local Setup
+
+### Requirements
+
+- PHP
+- Composer
+- MySQL
+- A Laravel-compatible local development environment
+
+### Installation
+
+Clone the repository and install dependencies:
+
+```bash
+git clone <repository-url>
+cd green-mind-api
+composer install
+```
+
+Create the environment file:
+
+```bash
+cp .env.example .env
+```
+
+Generate the Laravel application key:
+
+```bash
+php artisan key:generate
+```
+
+Configure the database and external AI service credentials in `.env`.
+
+Run migrations and seed the database:
+
+```bash
+php artisan migrate --seed
+```
+
+Start the development server:
+
+```bash
+php artisan serve
+```
+
+> The AI-related endpoints also require the external Python AI service to be available and correctly configured.
+
+## Configuration
+
+The application expects environment-specific values for at least:
+
+- Application configuration
+- MySQL connection
+- Authentication
+- External AI service connection
+- Any mail/storage settings required by the enabled application features
+
+Sensitive values must be stored in `.env` and **must never be committed to the repository**.
+
+## What This Project Demonstrates
+
+This project demonstrates practical experience with building a Laravel backend beyond basic CRUD operations, including:
+
+- Designing a multi-module REST API
+- Authentication and role-based authorization
+- Request validation and structured API responses
+- Service-layer application logic
+- Relational database design with Eloquent
+- External service integration
+- AI workflow integration
+- Streaming HTTP responses with Server-Sent Events
+- Audit logging
+- Localization
+- Pagination and filtering
+- Dashboard data aggregation
+
+## Scope of This Repository
+
+This repository represents the **Laravel/backend side** of Green Mind.
+
+The AI model/service is maintained separately and is consumed by the Laravel API through an integration layer. The focus of this repository is therefore the application's backend architecture, domain logic, persistence, authorization, and communication with external services.
+
+## Author
+
+**Khaled Tello**  
+Information Technology Engineering Student — Damascus University  
+Backend / Laravel Developer
